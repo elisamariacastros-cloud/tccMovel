@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:login/visao/estilos/EstilosTexto.dart';
 import 'package:login/modelo/local_storage_service.dart';
-import 'package:login/modelo/Objects/autorizacao.dart';
+import 'package:login/modelo/Objects/aluno.dart';
 
 class TelaDadosPessoais extends StatefulWidget {
   const TelaDadosPessoais({super.key, required this.title});
@@ -16,7 +16,7 @@ class TelaDadosPessoais extends StatefulWidget {
 }
 
 class _TelaDadosPessoaisState extends State<TelaDadosPessoais> {
-  Autorizacao? _usuario;
+  Aluno? _aluno;
   bool _carregando = true;
 
   @override
@@ -30,12 +30,30 @@ class _TelaDadosPessoaisState extends State<TelaDadosPessoais> {
       _carregando = true;
     });
 
-    Autorizacao? dados = await LocalStorageService.carregarAutorizacao();
+    Aluno? dados = await LocalStorageService.carregarAluno();
 
     setState(() {
-      _usuario = dados;
+      _aluno = dados;
       _carregando = false;
     });
+  }
+
+  Widget _cardDado(IconData icone, String titulo, String? valor) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: ListTile(
+        leading: Icon(icone, color: const Color.fromARGB(255, 170, 0, 0)),
+        title: Text(titulo,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        subtitle: Text(
+          (valor == null || valor.isEmpty) ? "Não informado" : valor,
+          style:
+          const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
   }
 
   @override
@@ -99,43 +117,17 @@ class _TelaDadosPessoaisState extends State<TelaDadosPessoais> {
                     child: CircularProgressIndicator(),
                   ),
                 ]
-                // USUARIO CADASTRADO
-                else if (_usuario != null) ...[
-                  // CARD EMAIL
-                  Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: ListTile(
-                      leading: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 170, 0, 0)),
-                      title: const Text("E-mail",
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
-                      subtitle: Text(_usuario!.usuario,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-
-                  // CARD SENHA
-                  Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    child: const ListTile(
-                      leading: Icon(Icons.lock,
-                          color: Color.fromARGB(255, 170, 0, 0)),
-                      title: Text("Senha",
-                          style: TextStyle(fontSize: 12, color: Colors.grey)),
-                      subtitle: Text("********",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
+                // ALUNO CARREGADO
+                else if (_aluno != null) ...[
+                  _cardDado(Icons.person, "Nome", _aluno!.nome),
+                  _cardDado(Icons.email, "E-mail", _aluno!.email),
+                  _cardDado(Icons.badge, "Matrícula", _aluno!.matricula),
+                  _cardDado(Icons.phone, "Telefone", _aluno!.telefone),
+                  _cardDado(Icons.monitor_weight, "Peso (kg)", _aluno!.peso),
+                  _cardDado(Icons.height, "Altura (m)", _aluno!.altura),
+                  _cardDado(Icons.flag, "Objetivo", _aluno!.objetivo),
                 ]
-                // NENHUM USUARIO CADASTRADO
+                // NENHUM ALUNO CADASTRADO
                 else ...[
                     Card(
                       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -147,7 +139,7 @@ class _TelaDadosPessoaisState extends State<TelaDadosPessoais> {
                             color: Colors.orange),
                         title: Text("Aviso",
                             style: TextStyle(fontSize: 12, color: Colors.grey)),
-                        subtitle: Text("Nenhum usuario cadastrado",
+                        subtitle: Text("Nenhum aluno cadastrado",
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                       ),

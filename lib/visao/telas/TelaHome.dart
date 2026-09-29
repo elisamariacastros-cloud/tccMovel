@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:login/modelo/ItemListView.dart';
 import 'package:login/visao/estilos/EstilosTexto.dart';
 import 'package:login/visao/util/WidgetsUteis.dart';
+import 'package:login/modelo/local_storage_service.dart';
+import 'package:login/modelo/ficha_service.dart';
+import 'package:login/modelo/Objects/ficha.dart';
+import 'package:login/modelo/Objects/treino.dart';
 
 class TelaHome extends StatefulWidget {
   const TelaHome({super.key, required this.title});
@@ -15,16 +18,58 @@ class TelaHome extends StatefulWidget {
 }
 
 class _TelaHomeState extends State<TelaHome> {
-  void exibirAlerta(BuildContext context, List<String> exercicios) {
+  Ficha? _ficha;
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarFicha();
+  }
+
+  Future<void> _carregarFicha() async {
+    setState(() {
+      _carregando = true;
+    });
+
+    final autorizacao = await LocalStorageService.carregarAutorizacao();
+
+    if (autorizacao != null) {
+      final ficha = await FichaService()
+          .buscarFichaMaisRecente(autorizacao.token_autorizacao);
+
+      setState(() {
+        _ficha = ficha;
+        _carregando = false;
+      });
+    } else {
+      setState(() {
+        _carregando = false;
+      });
+    }
+  }
+
+  void exibirAlerta(BuildContext context, Treino treino) {
+    List<String> exercicios = treino.exercicios.map((e) {
+      final detalhes = [
+        e.series > 0 ? "${e.series}x${e.repeticoes}" : null,
+        e.carga != null ? "carga ${e.carga}" : null,
+      ].whereType<String>().join(" - ");
+
+      return detalhes.isEmpty
+          ? e.nomeExercicio
+          : "${e.nomeExercicio} ($detalhes)";
+    }).toList();
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           insetPadding: const EdgeInsets.symmetric(
-            horizontal: 350, // diminui a largura
+            horizontal: 350,
             vertical: 24,
           ),
-          title: const Text("Exercícios"),
+          title: Text("Treino ${treino.tipo} - ${treino.nome}"),
           content: WidgetsUteis.listaExercicios(exercicios),
           actions: [
             TextButton(
@@ -123,70 +168,56 @@ class _TelaHomeState extends State<TelaHome> {
                     Internacionalizacao.subtitulo,
                     style: EstilosTextosCustomizado.subTitle(context),
                   ),
-                  Column(
-                    children: linhaTempo.map((item) {
-                      return Card(
-                        elevation: 3,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                const Color.fromARGB(255, 170, 0, 0)
-                                    .withOpacity(0.1),
-                            child: const Icon(
-                              Icons.fitness_center,
-                              color: Color.fromARGB(255, 170, 0, 0),
+                  SizedBox(height: 16),
+
+                  if (_carregando) ...[
+                    const Center(child: CircularProgressIndicator()),
+                  ] else if (_ficha == null) ...[
+                    Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const ListTile(
+                        leading: Icon(Icons.warning, color: Colors.orange),
+                        title: Text("Nenhuma ficha encontrada"),
+                        subtitle:
+                        Text("Fale com seu personal para criar uma ficha."),
+                      ),
+                    ),
+                  ] else ...[
+                    Column(
+                      children: _ficha!.treinos.map((treino) {
+                        return Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            leading: CircleAvatar(
+                              backgroundColor:
+                              const Color.fromARGB(255, 170, 0, 0)
+                                  .withOpacity(0.1),
+                              child: const Icon(
+                                Icons.fitness_center,
+                                color: Color.fromARGB(255, 170, 0, 0),
+                              ),
                             ),
+                            title: Text(
+                              "Treino ${treino.tipo}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(treino.nome),
+                            onTap: () => exibirAlerta(context, treino),
                           ),
-                          title: Text(
-                            "Treino ${item.treino}",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(item.descricao),
-                          onTap: () {
-                            List<String> exercicios = [];
-
-                            if (item.treino == 'A') {
-                              exercicios = [
-                                "Supino",
-                                "Crucifixo",
-                                "Flexão",
-                                "Cardio"
-                              ];
-                            } else if (item.treino == 'B') {
-                              exercicios = [
-                                "Agachamento",
-                                "Leg press",
-                                "Extensora",
-                                "Cardio"
-                              ];
-                            } else if (item.treino == 'C') {
-                              exercicios = [
-                                "Puxada",
-                                "Remada",
-                                "Barra fixa",
-                                "Cardio"
-                              ];
-                            } else if (item.treino == 'D') {
-                              exercicios = [
-                                "Hip thrust",
-                                "Afundo",
-                                "Glúteo máquina",
-                                "Cardio"
-                              ];
-                            }
-
-                            exibirAlerta(context, exercicios);
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -196,13 +227,6 @@ class _TelaHomeState extends State<TelaHome> {
     );
   }
 }
-
-List<ItemListView> linhaTempo = [
-  ItemListView(treino: 'A', descricao: 'PEITORAL'),
-  ItemListView(treino: 'B', descricao: 'QUADRICEPS'),
-  ItemListView(treino: 'C', descricao: 'COSTA'),
-  ItemListView(treino: 'D', descricao: 'GLUTEO'),
-];
 
 class Internacionalizacao {
   static String valorDisponivel = "valor total ainda disponível";

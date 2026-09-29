@@ -9,6 +9,9 @@ import 'package:login/visao/telas/Principal.dart';
 import 'package:login/visao/util/WidgetsUteis.dart';
 import 'package:login/modelo/Objects/autorizacao.dart';
 import 'package:login/modelo/local_storage_service.dart';
+import 'package:login/modelo/auth_service.dart';
+import 'package:login/modelo/aluno_service.dart';
+
 
 class Login extends StatefulWidget {
   const Login({super.key, required this.title});
@@ -33,16 +36,27 @@ class _LoginState extends State<Login> {
       return;
     }
 
-    Autorizacao? authSalvo = await LocalStorageService.carregarAutorizacao();
+    final resultadoLogin = await AuthService().login(email, senha);
 
-    if (authSalvo != null && authSalvo.usuario == email && authSalvo.senha == senha) {
+    if (resultadoLogin['sucesso']) {
+      await LocalStorageService.salvarAutorizacao(resultadoLogin['autorizacao']);
+
+      // busca os dados do aluno e já salva localmente
+      final aluno = await AlunoService().buscarMeusDados(
+        resultadoLogin['autorizacao'].token_autorizacao,
+      );
+
+      if (aluno != null) {
+        await LocalStorageService.salvarAluno(aluno);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Bem-vindo, $email!')),
       );
       telaSplash2(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuário não autenticado!!!')),
+        SnackBar(content: Text(resultadoLogin['mensagem'])),
       );
     }
   }
