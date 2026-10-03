@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:login/visao/telas/Splash2.dart';
-import 'package:login/visao/telas/TelaRecuperacaoSenha.dart';
 import 'package:login/visao/estilos/EstilosBotoes.dart';
 import 'package:login/visao/estilos/EstilosTexto.dart';
 import 'package:login/visao/telas/Principal.dart';
@@ -68,101 +67,58 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void telaRecuperacaoSenha(context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => TelaRecuperacaoSenha()),
-    );
-  }
-
-  Widget _showEntrar(context) {
+  Widget _showEntrar(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        SizedBox(
-          height: ScreenUtil().setHeight(30),
-        ),
-        Container(
-          child: Padding(
-            padding: EdgeInsets.only(),
-            child: TextField(
-              style: TextStyle(color: Theme.of(context).primaryColorDark),
-              controller: _emailController,
-              decoration: InputDecoration(
-                hintText: Internacionalizacao.hintTextEmail,
-                hintStyle: EstilosTextosCustomizado.formField(context),
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, width: 1.0)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, width: 1.0)),
-                prefixIcon: const Icon(Icons.email,
-                    color: Color.fromARGB(255, 170, 0, 0)),
-              ),
-              obscureText: false,
-            ),
+        TextField(
+          style: TextStyle(color: Theme.of(context).primaryColorDark),
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(
+            hintText: Internacionalizacao.hintTextEmail,
+            hintStyle: EstilosTextosCustomizado.formField(context),
+            enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor, width: 1.0)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Theme.of(context).primaryColor, width: 1.0)),
+            prefixIcon:
+            const Icon(Icons.email, color: Color.fromARGB(255, 170, 0, 0)),
           ),
         ),
-        SizedBox(
-          height: ScreenUtil().setHeight(50),
-        ),
-        Container(
-          child: Padding(
-            padding: EdgeInsets.only(),
-            child: TextField(
-              obscureText: true,
-              style: TextStyle(color: Theme.of(context).primaryColor),
-              controller: _passwordController,
-              decoration: InputDecoration(
-                hintText: Internacionalizacao.hintTextPassword,
-                hintStyle: EstilosTextosCustomizado.formField(context),
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: EstilosBotoes().borderSideFino(context)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: EstilosBotoes().borderSideFino(context)),
-                prefixIcon: const Icon(
-                  Icons.lock,
-                  color: Color.fromARGB(255, 170, 0, 0),
-                ),
-              ),
-            ),
+        const SizedBox(height: 24),
+        TextField(
+          obscureText: true,
+          style: TextStyle(color: Theme.of(context).primaryColor),
+          controller: _passwordController,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _enviarFormulario(),
+          decoration: InputDecoration(
+            hintText: Internacionalizacao.hintTextPassword,
+            hintStyle: EstilosTextosCustomizado.formField(context),
+            enabledBorder: UnderlineInputBorder(
+                borderSide: EstilosBotoes().borderSideFino(context)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: EstilosBotoes().borderSideFino(context)),
+            prefixIcon: const Icon(Icons.lock,
+                color: Color.fromARGB(255, 170, 0, 0)),
           ),
         ),
-        SizedBox(
-          height: ScreenUtil().setHeight(80),
-        ),
-        Container(
-          padding: EdgeInsets.all(8.0),
+        const SizedBox(height: 32),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
           child: WidgetsUteis().botaoSemBorda(
               context: context, texto: 'ACESSAR', executa: _enviarFormulario),
-        ),
-        SizedBox(
-          height: ScreenUtil().setHeight(15),
-        ),
-        Container(
-          child: Padding(
-            padding: EdgeInsets.only(),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                WidgetsUteis().horizontalLine(),
-                Text('-', style: EstilosTextosCustomizado.body(context)),
-                WidgetsUteis().horizontalLine()
-              ],
-            ),
-          ),
-        ),
-        WidgetsUteis().espacoHorizontal15,
-        WidgetsUteis().botao2SemBorda(
-          context: context,
-          texto: "Esqueci minha senha...",
-          executa: () => telaRecuperacaoSenha(context),
         ),
       ],
     );
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -175,63 +131,69 @@ class _LoginState extends State<Login> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        decoration: BoxDecoration(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF5F5F5),
-              Colors.white,
-            ],
+            colors: [Color(0xFFF5F5F5), Colors.white],
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.only(top: 40.0),
-          child: Column(
-            children: <Widget>[
-              Container(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        Internacionalizacao.logoTitle,
-                        style: EstilosTextosCustomizado.title(context),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final minAltura =
+              constraints.maxHeight > 48 ? constraints.maxHeight - 48 : 0.0;
+
+              return SingleChildScrollView(
+                keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: minAltura),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            Internacionalizacao.logoTitle,
+                            textAlign: TextAlign.center,
+                            style: EstilosTextosCustomizado.title(context),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            Internacionalizacao.logoSubTitle,
+                            textAlign: TextAlign.center,
+                            style: EstilosTextosCustomizado.subTitle(context),
+                          ),
+                          const SizedBox(height: 40),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 238, 234, 234),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromARGB(31, 116, 4, 4),
+                                  blurRadius: 15,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: _showEntrar(context),
+                          ),
+                        ],
                       ),
-                      Text(
-                        Internacionalizacao.logoSubTitle,
-                        style: EstilosTextosCustomizado.subTitle(context),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-                width: ScreenUtil().setWidth(750),
-                height: ScreenUtil().setHeight(190),
-              ),
-              SizedBox(
-                height: ScreenUtil().setHeight(60),
-              ),
-              SizedBox(
-                height: ScreenUtil().setHeight(65),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 250),
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 238, 234, 234),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(31, 116, 4, 4),
-                      blurRadius: 15,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: _showEntrar(context),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),

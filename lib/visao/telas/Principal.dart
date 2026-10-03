@@ -31,17 +31,10 @@ class _PrincipalState extends State<Principal> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.star, color: const Color.fromARGB(255, 170, 0, 0)),
+
           WidgetsUteis().espacoHorizontal5,
           WidgetsUteis().espacoHorizontal5,
-          Text(
-            Internacionalizacao.titulo,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontSize: 20,
-            ),
-          ),
+
         ],
       ),
       backgroundColor: Colors.white,
@@ -95,5 +88,5 @@ class _PrincipalState extends State<Principal> {
 class Internacionalizacao {
   static String opt1 = "FICHA TREINO";
   static String opt2 = "DADOS PESSOAIS";
-  static String titulo = "MENU";
+
 }

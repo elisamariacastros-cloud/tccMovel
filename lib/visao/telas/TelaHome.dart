@@ -49,36 +49,245 @@ class _TelaHomeState extends State<TelaHome> {
     }
   }
 
+  static const Color _vermelho = Color.fromARGB(255, 170, 0, 0);
+
+  Widget _chip(String texto) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: _vermelho.withAlpha(25),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        texto,
+        style: const TextStyle(
+          color: _vermelho,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   void exibirAlerta(BuildContext context, Treino treino) {
-    List<String> exercicios = treino.exercicios.map((e) {
-      final detalhes = [
-        e.series > 0 ? "${e.series}x${e.repeticoes}" : null,
-        e.carga != null ? "carga ${e.carga}" : null,
-      ].whereType<String>().join(" - ");
-
-      return detalhes.isEmpty
-          ? e.nomeExercicio
-          : "${e.nomeExercicio} ($detalhes)";
-    }).toList();
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 350,
-            vertical: 24,
-          ),
-          title: Text("Treino ${treino.tipo} - ${treino.nome}"),
-          content: WidgetsUteis.listaExercicios(exercicios),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar"),
-            ),
-          ],
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.75,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          builder: (context, scroll) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              child: ListView(
+                controller: scroll,
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                children: [
+
+                  // Barrinha superior
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Título
+                  Text(
+                    "Treino ${treino.tipo}",
+                    style: const TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      color: _vermelho,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    treino.nome,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Lista de exercícios
+                  ...treino.exercicios.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final e = entry.value;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 13,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.shade200,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+
+                          // Número
+                          Container(
+                            width: 28,
+                            height: 28,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _vermelho,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              "${i + 1}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // Nome + informações
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+
+                                Text(
+                                  e.nomeExercicio,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 7),
+
+                                Row(
+                                  children: [
+
+                                    if (e.series > 0)
+                                      _chip(
+                                        "${e.series} séries × ${e.repeticoes}",
+                                      ),
+
+                                    if (e.series > 0 &&
+                                        e.carga != null)
+                                      const SizedBox(width: 7),
+
+                                    if (e.carga != null)
+                                      _chip(
+                                        "${e.carga} kg",
+                                      ),
+
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _cardTreino(Treino treino) {
+    final qtd = treino.exercicios.length;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => exibirAlerta(context, treino),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: _vermelho,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    treino.tipo,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        treino.nome,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "$qtd ${qtd == 1 ? 'exercício' : 'exercícios'}",
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: _vermelho),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

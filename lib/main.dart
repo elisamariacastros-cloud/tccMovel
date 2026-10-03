@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
   //método responsável por construir uma interface não alterável, neste caso a moldura em branco do app
   Widget build(BuildContext context) {
     return MaterialApp(
+
+      debugShowCheckedModeBanner: false,
       theme: temaEscuro(), //tema criado em estilos
       home: Splash1(), //chamando a tela de splash
     );
