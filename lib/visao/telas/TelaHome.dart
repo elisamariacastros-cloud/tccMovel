@@ -188,23 +188,18 @@ class _TelaHomeState extends State<TelaHome> {
 
                                 const SizedBox(height: 7),
 
-                                Row(
+                                Wrap(
+                                  spacing: 7,
+                                  runSpacing: 7,
                                   children: [
-
                                     if (e.series > 0)
-                                      _chip(
-                                        "${e.series} séries × ${e.repeticoes}",
-                                      ),
-
-                                    if (e.series > 0 &&
-                                        e.carga != null)
-                                      const SizedBox(width: 7),
+                                      _chip("${e.series} séries × ${e.repeticoes}"),
 
                                     if (e.carga != null)
-                                      _chip(
-                                        "${e.carga} kg",
-                                      ),
+                                      _chip("${e.carga} kg"),
 
+                                    if (e.descanso != null)
+                                      _chip("${e.descanso}s descanso"),
                                   ],
                                 ),
                               ],
@@ -364,14 +359,7 @@ class _TelaHomeState extends State<TelaHome> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  Text(
-                    'MEUS TREINOS',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 170, 0, 0),
-                    ),
-                  ),
+
                   SizedBox(height: 16),
                   Text(
                     Internacionalizacao.subtitulo,
@@ -438,7 +426,7 @@ class _TelaHomeState extends State<TelaHome> {
 }
 
 class Internacionalizacao {
-  static String valorDisponivel = "valor total ainda disponível";
-  static String subtitulo = "Treinos disponiveis";
+
+  static String subtitulo = "TREINOS DISPONÍVEIS";
   static String titulo = "Meus treinos";
 }

@@ -18,6 +18,7 @@ class TreinoExercicio {
   });
 
   factory TreinoExercicio.fromMap(Map<String, dynamic> map) {
+    print(map);
     return TreinoExercicio(
       ordem: map['ordem'] ?? 0,
       series: map['series'] ?? 0,
